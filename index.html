@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PL-300 Recap</title>
+<meta name="description" content="Closing recap for PL-300: prepare, model, visualize and manage Power BI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f7f6f2;
+    --card: #ffffff;
+    --ink: #1c1f23;
+    --muted: #5d636b;
+    --line: #e2e0d9;
+    --accent: #f2c811;
+    --ok: #1f7a4d;
+    --ok-bg: #e6f3ec;
+    --bad: #b3261e;
+    --bad-bg: #fbeae8;
+    --c1: #2d6cdf;
+    --c2: #7a4fd6;
+    --c3: #d2691e;
+    --c4: #1f8a70;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #16181b;
+      --card: #1e2125;
+      --ink: #eceae4;
+      --muted: #a3a8ae;
+      --line: #32363c;
+      --ok: #6fd19d;
+      --ok-bg: #18352a;
+      --bad: #f08a80;
+      --bad-bg: #3a1f1d;
+      --c1: #7aa5f2;
+      --c2: #b096f0;
+      --c3: #f0a060;
+      --c4: #5fc7a8;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 18px/1.55 "IBM Plex Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
+  .eyebrow {
+    font: 500 13px/1 "IBM Plex Mono", ui-monospace, monospace;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  }
+  h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.1; margin: 14px 0 12px; font-weight: 600; letter-spacing: -.01em; }
+  h1 mark { background: linear-gradient(transparent 84%, var(--accent) 84%); color: inherit; padding: 0 2px; }
+  .lede { color: var(--muted); max-width: 640px; margin: 0; }
+
+  /* exam weighting bar */
+  .weights { margin: 36px 0 8px; }
+  .weights-label { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+  .bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 3px; }
+  .bar button { border: 0; padding: 0; cursor: pointer; opacity: .35; transition: opacity .2s; }
+  .bar button.on { opacity: 1; }
+  .bar button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  /* tabs */
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 28px 0 0; }
+  .tab {
+    text-align: left; background: var(--card); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px 12px;
+    font: inherit; cursor: pointer; position: relative; transition: border-color .15s, transform .15s;
+  }
+  .tab:hover { transform: translateY(-1px); }
+  .tab .num { font: 500 13px/1 "IBM Plex Mono", monospace; color: var(--muted); }
+  .tab .name { display: block; font-weight: 600; font-size: 17px; margin-top: 6px; line-height: 1.25; }
+  .tab .tick { position: absolute; top: 12px; right: 12px; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); }
+  .tab.done .tick { background: var(--c); border-color: var(--c); }
+  .tab.done .tick::after { content: ""; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  .tab[aria-selected="true"] { border-color: var(--c); box-shadow: inset 0 -4px 0 var(--c); }
+  .tab:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+
+  /* panel */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin-top: 14px; padding: 32px; }
+  .panel[hidden] { display: none; }
+  .where { display: inline-block; font: 500 12px/1 "IBM Plex Mono", monospace; letter-spacing: .04em; color: var(--c); border: 1px solid var(--c); border-radius: 99px; padding: 6px 10px; }
+  .panel h2 { font-size: 28px; margin: 14px 0 6px; font-weight: 600; }
+  .objective { margin: 0 0 24px; color: var(--muted); }
+  .objective strong { color: var(--ink); font-weight: 500; }
+
+  .points { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; padding: 0; list-style: none; align-items: start; }
+  .point { border: 1px solid var(--line); border-left: 3px solid var(--c); border-radius: 8px; overflow: hidden; }
+  .point button {
+    width: 100%; text-align: left; background: none; border: 0; color: inherit; font: inherit;
+    padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .point button span { font-weight: 600; }
+  .point button i { font-style: normal; color: var(--muted); font-size: 20px; line-height: 1; transition: transform .2s; }
+  .point.open button i { transform: rotate(45deg); }
+  .point .body { display: none; padding: 0 16px 16px; color: var(--muted); font-size: 16px; }
+  .point.open .body { display: block; }
+  .point button:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+
+  .check { margin-top: 28px; padding-top: 24px; border-top: 1px dashed var(--line); }
+  .check .q { font-weight: 600; margin: 6px 0 14px; font-size: 19px; }
+  .opts { display: grid; gap: 8px; }
+  .opt {
+    text-align: left; font: inherit; color: inherit; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; cursor: pointer;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--c); }
+  .opt:disabled { cursor: default; }
+  .opt.right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 500; }
+  .opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+  .opt:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+  .why { margin: 14px 0 0; font-size: 16px; color: var(--muted); }
+  .why[hidden] { display: none; }
+
+  .nav { display: flex; justify-content: space-between; margin-top: 28px; gap: 12px; }
+  .btn {
+    font: inherit; font-weight: 500; font-size: 16px; border-radius: 8px; padding: 10px 16px; cursor: pointer;
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+  }
+  .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn:disabled { visibility: hidden; }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* summary */
+  .summary { margin-top: 40px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .score { font: 600 40px/1 "IBM Plex Sans", sans-serif; }
+  .score small { font-size: 18px; color: var(--muted); font-weight: 400; }
+  .summary p { margin: 0; color: var(--muted); max-width: 520px; }
+  .reset { margin-left: auto; }
+  footer { margin-top: 48px; font-size: 13px; color: var(--muted); }
+  kbd { font: 500 12px "IBM Plex Mono", monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; }
+
+  @media (max-width: 720px) {
+    body { font-size: 16px; }
+    .wrap { padding: 32px 16px 60px; }
+    .tabs { grid-template-columns: repeat(2, 1fr); }
+    .points { grid-template-columns: 1fr; }
+    .panel { padding: 22px 18px; }
+    .reset { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="eyebrow">PL-300 · Microsoft Power BI Data Analyst · Closing recap</div>
+  <h1>Four things a <mark>data analyst</mark> does in Power BI</h1>
+  <p class="lede">Every part of this course maps to one of these four skills. Open each one, review the key ideas, and answer one quick question.</p>
+
+  <section class="weights" aria-label="Exam weighting">
+    <div class="weights-label"><span>Share of the PL-300 exam</span><span id="weightText">Tap a skill</span></div>
+    <div class="bar" id="bar"></div>
+  </section>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div id="panels"></div>
+
+  <section class="summary" aria-live="polite">
+    <div class="score"><span id="score">0</span><small> / 4 correct</small></div>
+    <p id="summaryText">Answer the quick check in each section.</p>
+    <button class="btn reset" id="reset" type="button">Start again</button>
+  </section>
+
+  <footer>Use <kbd>←</kbd> <kbd>→</kbd> to move between sections. Exam weightings follow the published PL-300 study guide and may change.</footer>
+</main>
+
+<script>
+const SECTIONS = [
+  {
+    id: "prepare", name: "Prepare the data", color: "--c1", weight: [25, 30],
+    where: "Power Query Editor",
+    objective: "Get data from different sources, then clean and transform it so it is ready to model.",
+    points: [
+      ["Get data", "Connect to Excel, CSV, SQL Server and many other sources. Several sources can feed one semantic model."],
+      ["Storage mode", "Import copies the data into Power BI (fast, all transformations). DirectQuery keeps a live connection (near real-time, limited transformations). Dual can act as either."],
+      ["Profile the data", "Column quality shows valid, error and empty values. Column distribution shows distinct and unique counts. Column profile shows the statistics."],
+      ["Clean and transform", "Fix data types, replace values, use first row as headers, remove duplicates and errors. Every change is kept in Applied Steps."]
+    ],
+    q: "Your report must show sales from SQL Server that change every few minutes. Which storage mode fits best?",
+    opts: ["Import", "DirectQuery", "Excel workbook"],
+    answer: 1,
+    why: "DirectQuery keeps a live connection, so visuals show the latest data. The trade-off is fewer transformations and dependence on the source's speed."
+  },
+  {
+    id: "model", name: "Model the data", color: "--c2", weight: [25, 30],
+    where: "Model view · DAX",
+    objective: "Connect tables with relationships and add calculations so the data answers business questions.",
+    points: [
+      ["Star schema", "Fact tables hold the numbers (sales, quantity). Dimension tables describe them (product, customer, date)."],
+      ["Relationships", "Usually one-to-many, from a dimension to a fact table. Filters flow from the 'one' side to the 'many' side."],
+      ["DAX measures", "Formulas like Total Sales = SUM(Sales[Amount]) are calculated on the fly for whatever is filtered."],
+      ["Performance", "Remove columns you don't need and keep cardinality low. Fewer unique values means a smaller, faster model."]
+    ],
+    q: "In a star schema, which table stores the sales amount for each transaction?",
+    opts: ["Fact table", "Dimension table", "Date table"],
+    answer: 0,
+    why: "Fact tables store measurable events such as sales. Dimension tables describe them, for example which product or which customer."
+  },
+  {
+    id: "visualize", name: "Visualize and analyze", color: "--c3", weight: [25, 30],
+    where: "Report view",
+    objective: "Build clear, interactive reports and use them to find what is happening in the data.",
+    points: [
+      ["Pick the right visual", "Bar or column to compare, line to show a trend over time, card for a single KPI, table for detail."],
+      ["Filters and slicers", "Filter a visual, a page or the whole report. Slicers let users filter for themselves."],
+      ["Interaction", "Clicking one visual cross-filters the others. Drill down to go from year to month to day."],
+      ["Analyze", "Use features like Copilot and Q&A to ask questions of the data and spot patterns."]
+    ],
+    q: "You want to show how revenue changed month by month over the last year. Which visual is clearest?",
+    opts: ["Pie chart", "Card", "Line chart"],
+    answer: 2,
+    why: "A line chart shows change over time at a glance. A pie chart compares parts of a whole, and a card shows one number."
+  },
+  {
+    id: "manage", name: "Manage and secure", color: "--c4", weight: [15, 20],
+    where: "Power BI service",
+    objective: "Publish, share and keep reports up to date, and make sure people only see the data they should.",
+    points: [
+      ["Publish and share", "Publish from Power BI Desktop to a workspace in the Power BI service, then share through an app."],
+      ["Workspace roles", "Admin, Member, Contributor and Viewer control who can edit, publish or only view content."],
+      ["Refresh", "Schedule refresh to keep imported data current. On-premises sources need a gateway."],
+      ["Row-level security", "Define roles with DAX filters in Desktop, then assign people to them in the service."]
+    ],
+    q: "Each regional manager should see only their own region's sales in the same report. What do you use?",
+    opts: ["Row-level security (RLS)", "A separate report per region", "Workspace Viewer role"],
+    answer: 0,
+    why: "RLS filters the data per user from one report and one model. The Viewer role controls what people can do, not which rows they see."
+  }
+];
+
+const state = { current: 0, answers: {} };
+const $ = (s, el = document) => el.querySelector(s);
+const tabsEl = $("#tabs"), panelsEl = $("#panels"), barEl = $("#bar");
+
+SECTIONS.forEach((s, i) => {
+  const c = `var(${s.color})`;
+
+  const seg = document.createElement("button");
+  seg.type = "button";
+  seg.style.background = c;
+  seg.style.flex = (s.weight[0] + s.weight[1]) / 2;
+  seg.setAttribute("aria-label", `${s.name}: ${s.weight[0]} to ${s.weight[1]} percent`);
+  seg.onclick = () => select(i);
+  barEl.appendChild(seg);
+
+  const tab = document.createElement("button");
+  tab.className = "tab";
+  tab.type = "button";
+  tab.id = `tab-${s.id}`;
+  tab.setAttribute("role", "tab");
+  tab.setAttribute("aria-controls", `panel-${s.id}`);
+  tab.style.setProperty("--c", c);
+  tab.innerHTML = `<span class="num">0${i + 1}</span><span class="name">${s.name}</span><span class="tick" aria-hidden="true"></span>`;
+  tab.onclick = () => select(i);
+  tabsEl.appendChild(tab);
+
+  const panel = document.createElement("section");
+  panel.className = "panel";
+  panel.id = `panel-${s.id}`;
+  panel.setAttribute("role", "tabpanel");
+  panel.setAttribute("aria-labelledby", tab.id);
+  panel.style.setProperty("--c", c);
+  panel.hidden = true;
+  panel.innerHTML = `
+    <span class="where">${s.where}</span>
+    <h2>${s.name}</h2>
+    <p class="objective"><strong>Objective:</strong> ${s.objective}</p>
+    <ul class="points">
+      ${s.points.map(([t, b]) => `
+        <li class="point">
+          <button type="button" aria-expanded="false"><span>${t}</span><i aria-hidden="true">+</i></button>
+          <div class="body">${b}</div>
+        </li>`).join("")}
+    </ul>
+    <div class="check">
+      <div class="eyebrow">Quick check</div>
+      <p class="q">${s.q}</p>
+      <div class="opts">${s.opts.map((o, k) => `<button type="button" class="opt" data-k="${k}">${o}</button>`).join("")}</div>
+      <p class="why" hidden>${s.why}</p>
+    </div>
+    <div class="nav">
+      <button type="button" class="btn prev" ${i === 0 ? "disabled" : ""}>← Previous</button>
+      <button type="button" class="btn primary next">${i === SECTIONS.length - 1 ? "See results" : "Next →"}</button>
+    </div>`;
+  panelsEl.appendChild(panel);
+
+  panel.querySelectorAll(".point button").forEach(b => b.onclick = () => {
+    const li = b.parentElement, open = li.classList.toggle("open");
+    b.setAttribute("aria-expanded", open);
+  });
+  panel.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(i, +b.dataset.k));
+  $(".prev", panel).onclick = () => select(i - 1);
+  $(".next", panel).onclick = () => i === SECTIONS.length - 1
+    ? $(".summary").scrollIntoView({ behavior: "smooth", block: "center" })
+    : select(i + 1);
+});
+
+function select(i, focus = false) {
+  if (i < 0 || i >= SECTIONS.length) return;
+  state.current = i;
+  [...tabsEl.children].forEach((t, k) => {
+    t.setAttribute("aria-selected", k === i);
+    t.tabIndex = k === i ? 0 : -1;
+  });
+  [...panelsEl.children].forEach((p, k) => p.hidden = k !== i);
+  [...barEl.children].forEach((b, k) => b.classList.toggle("on", k === i));
+  const s = SECTIONS[i];
+  $("#weightText").textContent = `${s.name}: ${s.weight[0]}–${s.weight[1]}%`;
+  if (focus) tabsEl.children[i].focus();
+}
+
+function answer(i, k) {
+  if (i in state.answers) return;
+  state.answers[i] = k;
+  const s = SECTIONS[i], panel = panelsEl.children[i];
+  panel.querySelectorAll(".opt").forEach((b, n) => {
+    b.disabled = true;
+    if (n === s.answer) b.classList.add("right");
+    else if (n === k) b.classList.add("wrong");
+  });
+  $(".why", panel).hidden = false;
+  tabsEl.children[i].classList.add("done");
+  updateScore();
+}
+
+function updateScore() {
+  const answered = Object.keys(state.answers).length;
+  const correct = Object.entries(state.answers).filter(([i, k]) => SECTIONS[i].answer === k).length;
+  $("#score").textContent = correct;
+  $("#summaryText").textContent =
+    answered < SECTIONS.length ? `${answered} of ${SECTIONS.length} sections checked. Keep going.` :
+    correct === SECTIONS.length ? "All four skills covered. You're ready for the next part of the course." :
+    "Good effort. Go back to any section marked in red and read the explanation once more.";
+}
+
+$("#reset").onclick = () => {
+  state.answers = {};
+  panelsEl.querySelectorAll(".opt").forEach(b => { b.disabled = false; b.classList.remove("right", "wrong"); });
+  panelsEl.querySelectorAll(".why").forEach(w => w.hidden = true);
+  panelsEl.querySelectorAll(".point").forEach(p => { p.classList.remove("open"); $("button", p).setAttribute("aria-expanded", false); });
+  [...tabsEl.children].forEach(t => t.classList.remove("done"));
+  updateScore();
+  select(0);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") select(state.current + 1, true);
+  if (e.key === "ArrowLeft") select(state.current - 1, true);
+});
+
+select(0);
+</script>
+</body>
+</html>
